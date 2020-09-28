@@ -1,21 +1,16 @@
 package com.example.myapplication;
 
 import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.TextView;
-
-import java.util.List;
-import java.util.Locale;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
+import android.widget.Toast;
 
 
 public class MainActivity extends Activity implements SensorEventListener {
@@ -29,11 +24,14 @@ public class MainActivity extends Activity implements SensorEventListener {
     private final float[] orientationAngles = new float[3];
     private int Sorush=0;
 
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+
+        stmiWearBluetoothActivation();
     }
 
     @Override
@@ -82,10 +80,6 @@ public class MainActivity extends Activity implements SensorEventListener {
     // consider storing these readings as unit vectors.
     @Override
     public void onSensorChanged(SensorEvent event) {
-        int a=1000;
-        int b=100;
-
-
 //in your OnCreate() method
 
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
@@ -96,12 +90,11 @@ public class MainActivity extends Activity implements SensorEventListener {
                     0, magnetometerReading.length);
         } else if (event.sensor.getType() == Sensor.TYPE_HEART_BEAT) {
             heartBeat=event.values[0];
-            Sorush++;
         }
         //updateOrientationAngles();
-        TextView myAwesomeTextView = (TextView)findViewById(R.id.text);
 
-        myAwesomeTextView.setText("mamad"+Sorush);
+
+
 
     }
 
@@ -117,5 +110,38 @@ public class MainActivity extends Activity implements SensorEventListener {
         SensorManager.getOrientation(rotationMatrix, orientationAngles);
 
         // "mOrientationAngles" now has up-to-date information.
+    }
+
+    //Checking the bluetooth adaptor and enabling it if it is disabled
+    public void stmiWearBluetoothActivation(){
+
+        TextView statusTextViewVar = (TextView)findViewById(R.id.statusTextViewWear);
+        Intent btEnablingIntent;
+        BluetoothAdapter myBluetoothAdapter=BluetoothAdapter.getDefaultAdapter();
+        if(myBluetoothAdapter==null)
+            statusTextViewVar.setText("No Bluetooth available");
+        else{
+            if(!myBluetoothAdapter.isEnabled()){
+                Intent enableBluetoothIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                startActivityForResult(enableBluetoothIntent, 1);
+            }
+            else
+                statusTextViewVar.setText("Bluetooth is enabled");
+        }
+    }
+    //Overriding the onActivityResult. After enabling the bluetooth a toast pops up to inform the user.
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        TextView statusTextViewVar = (TextView)findViewById(R.id.statusTextViewWear);
+        if(requestCode==1){
+            if(resultCode==RESULT_OK) {
+                Toast.makeText(getApplicationContext(),"Request Accepted",Toast.LENGTH_LONG).show();
+                statusTextViewVar.setText("Bluetooth is enabled");
+            }
+            if(resultCode==RESULT_CANCELED){
+                Toast.makeText(getApplicationContext(),"Request Denied",Toast.LENGTH_LONG).show();
+                statusTextViewVar.setText("Bluetooth is disabled");
+            }
+        }
     }
 }

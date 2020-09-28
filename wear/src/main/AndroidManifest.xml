@@ -4,6 +4,12 @@
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
+    <!--
+        These two lines allow to activate the bluetooth on the wearable
+    -->
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+
     <uses-feature android:name="android.hardware.type.watch" />
 
     <application
