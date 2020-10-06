@@ -1,0 +1,146 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<!--
+3 Copyright (C) 2014 The Android Open Source Project
+4
+5     Licensed under the Apache License, Version 2.0 (the "License");
+6     you may not use this file except in compliance with the License.
+7     You may obtain a copy of the License at
+8
+9          http://www.apache.org/licenses/LICENSE-2.0
+10
+11     Unless required by applicable law or agreed to in writing, software
+12     distributed under the License is distributed on an "AS IS" BASIS,
+13     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+14     See the License for the specific language governing permissions and
+15     limitations under the License.
+16-->
+17<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+18    package="com.example.android.wearable.datalayer"
+19    android:versionCode="1"
+20    android:versionName="1.0" >
+21
+22    <uses-sdk
+23        android:minSdkVersion="23"
+23-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml
+24        android:targetSdkVersion="28" />
+24-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml
+25
+26    <uses-permission android:name="android.permission.WAKE_LOCK" />
+26-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:20:5-68
+26-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:20:22-65
+27
+28    <uses-feature android:name="android.hardware.type.watch" />
+28-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:22:5-64
+28-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:22:19-61
+29
+30    <application
+30-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:24:5-62:19
+31        android:allowBackup="true"
+31-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:25:13-39
+32        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+32-->[androidx.core:core:1.1.0] C:\Users\sorus\.gradle\caches\transforms-2\files-2.1\76f2b6439d16df60df3177021482ee5a\core-1.1.0\AndroidManifest.xml:24:18-86
+33        android:debuggable="true"
+34        android:extractNativeLibs="false"
+35        android:icon="@drawable/ic_launcher"
+35-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:26:13-49
+36        android:label="@string/app_name"
+36-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:27:13-45
+37        android:testOnly="true"
+38        android:theme="@android:style/Theme.DeviceDefault" >
+38-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:28:13-63
+39        <meta-data
+39-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:30:9-32:37
+40            android:name="com.google.android.wearable.standalone"
+40-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:31:13-66
+41            android:value="false" />
+41-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:32:13-34
+42        <meta-data
+42-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:34:9-36:73
+43            android:name="com.google.android.gms.version"
+43-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:35:17-62
+44            android:value="@integer/google_play_services_version" />
+44-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:36:17-70
+45
+46        <service android:name="com.example.android.wearable.datalayer.DataLayerListenerService" >
+46-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:38:9-49:19
+46-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:39:17-57
+47            <intent-filter>
+47-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:40:13-44:29
+48
+49                <!-- listeners receive events that match the action and data filters -->
+50                <action android:name="com.google.android.gms.wearable.DATA_CHANGED" />
+50-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:42:17-87
+50-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:42:25-84
+51
+52                <data
+52-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:43:17-91
+53                    android:host="*"
+53-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:43:45-61
+54                    android:pathPrefix="/count"
+54-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:43:62-89
+55                    android:scheme="wear" />
+55-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:43:23-44
+56            </intent-filter>
+57            <intent-filter>
+57-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:45:13-48:29
+58                <action android:name="com.google.android.gms.wearable.MESSAGE_RECEIVED" />
+58-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:46:17-91
+58-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:46:25-88
+59
+60                <data
+60-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:43:17-91
+61                    android:host="*"
+61-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:43:45-61
+62                    android:pathPrefix="/start-activity"
+62-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:43:62-89
+63                    android:scheme="wear" />
+63-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:43:23-44
+64            </intent-filter>
+65        </service>
+66
+67        <activity
+67-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:50:9-61:20
+68            android:name="com.example.android.wearable.datalayer.MainActivity"
+68-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:51:13-41
+69            android:label="@string/app_name" >
+69-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:52:13-45
+70            <intent-filter>
+70-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:53:13-56:29
+71                <action android:name="android.intent.action.MAIN" />
+71-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:54:17-68
+71-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:54:25-66
+72
+73                <category android:name="android.intent.category.LAUNCHER" />
+73-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:55:17-76
+73-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:55:27-74
+74            </intent-filter>
+75            <intent-filter>
+75-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:57:13-60:29
+76                <action android:name="com.example.android.wearable.datalayer.EXAMPLE" />
+76-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:58:17-88
+76-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:58:25-86
+77
+78                <category android:name="android.intent.category.DEFAULT" />
+78-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:59:17-75
+78-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:59:27-73
+79            </intent-filter>
+80        </activity>
+81
+82        <uses-library
+82-->[com.google.android.support:wearable:2.7.0] C:\Users\sorus\.gradle\caches\transforms-2\files-2.1\b608279eab425aea3804e656f1679a93\jetified-wearable-2.7.0\AndroidManifest.xml:10:9-12:40
+83            android:name="com.google.android.wearable"
+83-->[com.google.android.support:wearable:2.7.0] C:\Users\sorus\.gradle\caches\transforms-2\files-2.1\b608279eab425aea3804e656f1679a93\jetified-wearable-2.7.0\AndroidManifest.xml:11:13-55
+84            android:required="false" />
+84-->[com.google.android.support:wearable:2.7.0] C:\Users\sorus\.gradle\caches\transforms-2\files-2.1\b608279eab425aea3804e656f1679a93\jetified-wearable-2.7.0\AndroidManifest.xml:12:13-37
+85
+86        <activity
+86-->[com.google.android.gms:play-services-base:17.0.0] C:\Users\sorus\.gradle\caches\transforms-2\files-2.1\a1794986c7a3c4986f9feb2359005476\jetified-play-services-base-17.0.0\AndroidManifest.xml:23:9-26:75
+87            android:name="com.google.android.gms.common.api.GoogleApiActivity"
+87-->[com.google.android.gms:play-services-base:17.0.0] C:\Users\sorus\.gradle\caches\transforms-2\files-2.1\a1794986c7a3c4986f9feb2359005476\jetified-play-services-base-17.0.0\AndroidManifest.xml:24:13-79
+88            android:exported="false"
+88-->[com.google.android.gms:play-services-base:17.0.0] C:\Users\sorus\.gradle\caches\transforms-2\files-2.1\a1794986c7a3c4986f9feb2359005476\jetified-play-services-base-17.0.0\AndroidManifest.xml:25:13-37
+89            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+89-->[com.google.android.gms:play-services-base:17.0.0] C:\Users\sorus\.gradle\caches\transforms-2\files-2.1\a1794986c7a3c4986f9feb2359005476\jetified-play-services-base-17.0.0\AndroidManifest.xml:26:13-72
+90    </application>
+91
+92</manifest>

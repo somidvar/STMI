@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/My_Application.iml" filepath="$PROJECT_DIR$/.idea/modules/My_Application.iml" group="My_Application" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/mobile/mobile.iml" filepath="$PROJECT_DIR$/.idea/modules/mobile/mobile.iml" group="My Application/mobile" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/wear/wear.iml" filepath="$PROJECT_DIR$/.idea/modules/wear/wear.iml" group="My Application/wear" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Application/Application.iml" filepath="$PROJECT_DIR$/.idea/modules/Application/Application.iml" group="STMI/Application" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/STMI.iml" filepath="$PROJECT_DIR$/.idea/modules/STMI.iml" group="STMI" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Wearable/Wearable.iml" filepath="$PROJECT_DIR$/.idea/modules/Wearable/Wearable.iml" group="STMI/Wearable" />
     </modules>
   </component>
 </project>

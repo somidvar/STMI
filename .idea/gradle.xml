@@ -11,8 +11,8 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/mobile" />
-            <option value="$PROJECT_DIR$/wear" />
+            <option value="$PROJECT_DIR$/Application" />
+            <option value="$PROJECT_DIR$/Wearable" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

@@ -1,0 +1,30 @@
+[
+    {
+        "merged": "D:\\Android\\STMI\\Wearable\\build\\intermediates\\res\\merged\\debug\\drawable-mdpi_ic_launcher.png.flat",
+        "source": "D:\\Android\\STMI\\Wearable\\src\\main\\res\\drawable-mdpi\\ic_launcher.png"
+    },
+    {
+        "merged": "D:\\Android\\STMI\\Wearable\\build\\intermediates\\res\\merged\\debug\\drawable-nodpi_photo_placeholder.png.flat",
+        "source": "D:\\Android\\STMI\\Wearable\\src\\main\\res\\drawable-nodpi\\photo_placeholder.png"
+    },
+    {
+        "merged": "D:\\Android\\STMI\\Wearable\\build\\intermediates\\res\\merged\\debug\\drawable-xhdpi_ic_launcher.png.flat",
+        "source": "D:\\Android\\STMI\\Wearable\\src\\main\\res\\drawable-xhdpi\\ic_launcher.png"
+    },
+    {
+        "merged": "D:\\Android\\STMI\\Wearable\\build\\intermediates\\res\\merged\\debug\\drawable_rounded_background.xml.flat",
+        "source": "D:\\Android\\STMI\\Wearable\\src\\main\\res\\drawable\\rounded_background.xml"
+    },
+    {
+        "merged": "D:\\Android\\STMI\\Wearable\\build\\intermediates\\res\\merged\\debug\\layout_main_activity.xml.flat",
+        "source": "D:\\Android\\STMI\\Wearable\\src\\main\\res\\layout\\main_activity.xml"
+    },
+    {
+        "merged": "D:\\Android\\STMI\\Wearable\\build\\intermediates\\res\\merged\\debug\\drawable-hdpi_ic_launcher.png.flat",
+        "source": "D:\\Android\\STMI\\Wearable\\src\\main\\res\\drawable-hdpi\\ic_launcher.png"
+    },
+    {
+        "merged": "D:\\Android\\STMI\\Wearable\\build\\intermediates\\res\\merged\\debug\\drawable-xxhdpi_ic_launcher.png.flat",
+        "source": "D:\\Android\\STMI\\Wearable\\src\\main\\res\\drawable-xxhdpi\\ic_launcher.png"
+    }
+]
