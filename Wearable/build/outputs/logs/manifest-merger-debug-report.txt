@@ -106,7 +106,7 @@ MERGED from [com.google.android.gms:play-services-basement:17.0.0] C:\Users\soru
 		ADDED from D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:36:17-70
 	android:name
 		ADDED from D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:35:17-62
-service#com.example.android.wearable.datalayer.DataLayerListenerService
+service#com.example.android.wearable.datalayer.STMIWatchListenerService
 ADDED from D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:38:9-49:19
 	android:name
 		ADDED from D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:39:17-57

@@ -2,23 +2,23 @@
  * Copyright (C) 2020 Sorush Omidvar. All rights reserved.
  *
  * This appliction is created under Dr. Mortazavi at Texas A&M University for continuous glucose
- * monitoring project funded by NSF.
+ * monitoring project funded by NSF. This project is developed based on the DataLayer Android sample
+ * project.
  */
 
 package com.example.android.wearable.datalayer;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.Telephony;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.WorkerThread;
 
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.android.gms.wearable.Asset;
@@ -42,7 +42,6 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.InputStream;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -80,11 +79,7 @@ public class MainActivity extends Activity
         myTextView.setText("My Awesome Text");
 
         mGeneratorExecutor = new ScheduledThreadPoolExecutor(1);
-    }
 
-    @Override
-    public void onResume() {
-        super.onResume();
         mDataItemGeneratorFuture =
                 mGeneratorExecutor.scheduleWithFixedDelay(
                         new DataItemGenerator(), 1, 5, TimeUnit.SECONDS);
@@ -94,10 +89,9 @@ public class MainActivity extends Activity
         Wearable.getCapabilityClient(this)
                 .addListener(this, Uri.parse("wear://"), CapabilityClient.FILTER_REACHABLE);
     }
-
     @Override
-    public void onPause() {
-        super.onPause();
+    public void onDestroy() {
+        super.onDestroy();
         mDataItemGeneratorFuture.cancel(true /* mayInterruptIfRunning */);
 
         Wearable.getDataClient(this).removeListener(this);
@@ -251,13 +245,52 @@ public class MainActivity extends Activity
                         phoneAssetChar = assetInputStream.read();
                     }
                     assetInputStream.close();
-                    Log.d(TAG, "Data is: "+phoneAssetStr);
-                    myTextView.setText(phoneAssetStr);
+                    STMISensorDataWritterPhone(phoneAssetStr);
+                    Log.e(TAG, "Data is: "+phoneAssetStr);
                 }
             }catch (Exception e){
                 Log.e(TAG, "PhoneReceiverAsyncTask" + e.getMessage());
             }
             return null;
         }
+    }
+    protected void STMISensorDataWritterPhone(String sensorRawData){
+        File root = new File(MainActivity.this.getFilesDir(), "SensorDataFile");
+        File gpxfile=null;
+        if (!root.exists()) {
+            root.mkdir();
+        }
+
+        try {
+            String[] fileListAr = root.list();
+            int fileAddressIndex = 0;
+            for (String fileList : fileListAr) {
+                if (fileList.contains("RawData") && fileList.contains(".txt")) {
+                    int IndexTemp2 = fileList.indexOf('.');
+                    String AddressTemp = fileList.substring(7, IndexTemp2);
+                    if (AddressTemp == "" || !isNumber(AddressTemp))
+                        continue;
+                    if (fileAddressIndex < Integer.parseInt(AddressTemp))
+                        fileAddressIndex = Integer.parseInt(AddressTemp);
+                }
+            }
+
+            fileAddressIndex++;//The index of the new file
+            gpxfile = new File(root, "RawData"+fileAddressIndex+".txt");
+            FileWriter writer = new FileWriter(gpxfile);
+            writer.write(sensorRawData);
+            writer.flush();
+            writer.close();
+        } catch (Exception e) {
+            Log.e(TAG,"STMISensorDataWritterPhone"+e.getMessage());
+        }
+    }
+    private boolean isNumber(String fileAddress){
+        try{
+            Integer.parseInt(fileAddress);
+        }catch (Exception e){
+            return false;
+        }
+        return true;
     }
 }

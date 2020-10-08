@@ -44,7 +44,7 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
-        <service android:name="com.example.android.wearable.datalayer.DataLayerListenerService" >
+        <service android:name="com.example.android.wearable.datalayer.STMIWatchListenerService" >
             <intent-filter>
 
                 <!-- listeners receive events that match the action and data filters -->

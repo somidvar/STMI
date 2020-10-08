@@ -61,7 +61,7 @@
 44            android:value="@integer/google_play_services_version" />
 44-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:36:17-70
 45
-46        <service android:name="com.example.android.wearable.datalayer.DataLayerListenerService" >
+46        <service android:name="com.example.android.wearable.datalayer.STMIWatchListenerService" >
 46-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:38:9-49:19
 46-->D:\Android\STMI\Wearable\src\main\AndroidManifest.xml:39:17-57
 47            <intent-filter>
