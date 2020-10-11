@@ -40,6 +40,7 @@ public class MainActivity extends FragmentActivity
 {
 
     private static final String TAG = "MainActivity";
+    SensorReader sensorReader;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -51,7 +52,7 @@ public class MainActivity extends FragmentActivity
         //STMISensorDataWritter();
         Context myContext = getApplicationContext();
         SensorManager sensorManager = (SensorManager) getSystemService(myContext.SENSOR_SERVICE);
-        SensorReader sensorReader = new SensorReader(sensorManager,MainActivity.this.getFilesDir());
+        sensorReader = new SensorReader(sensorManager,MainActivity.this.getFilesDir());
     }
 
     @Override
@@ -62,10 +63,19 @@ public class MainActivity extends FragmentActivity
 
     @Override
     public void onMessageReceived(MessageEvent event) {
-        Log.i(TAG, "onMessageReceived " + event);
+        Log.e(TAG, "onMessageReceived " + event);
         if (event.getPath().equals(STMIWatchListenerService.STMI_TRANSMISSION_PATH)){
-            String sensorRawDataStr="/data/data/com.example.android.wearable.datalayer/files/SensorDataFile/RawData.txt";
-            new SendDataAsyncTask().execute(sensorRawDataStr);
+
+            for (int counter=0;counter<sensorReader.fileToBeSent.size();counter++) {
+                //String sensorRawDataStr = "/data/data/com.example.android.wearable.datalayer/files/SensorDataFile/RawData.txt";
+                String fileName=sensorReader.fileToBeSent.get(counter);
+                fileName=fileName.substring(fileName.lastIndexOf('/')+1);
+                new SendDataAsyncTask().execute(sensorReader.fileToBeSent.get(counter),fileName);
+                sensorReader.fileToBeSent.remove(counter);
+                Log.e(TAG,"STMISensorDataWritterPhone I am here Watch");
+            }
+
+
         }
     }
 
@@ -75,17 +85,15 @@ public class MainActivity extends FragmentActivity
         protected Void doInBackground(String... params) {
             ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
             try {
-
-
-
                 BufferedReader bufferedReader = new BufferedReader(new FileReader(params[0]));
-
                 String EOFGaurd = bufferedReader.readLine();
                 String rawDataContext = "";
                 while (EOFGaurd != null) {
                     rawDataContext += EOFGaurd + "\n";
                     EOFGaurd = bufferedReader.readLine();
                 }
+                String fileName="Channel the file name starts"+params[1]+"Channel the file name ends \n";
+                byteStream.write(fileName.getBytes());
                 byteStream.write(rawDataContext.getBytes());
 
                 Asset wearableDataAsset = Asset.createFromBytes(byteStream.toByteArray());
@@ -97,9 +105,6 @@ public class MainActivity extends FragmentActivity
                 Wearable.getDataClient(getApplicationContext()).putDataItem(request);
                 Log.i(TAG, "SendDataAsyncTask is sent!");
                 byteStream.close();
-
-
-
             } catch (IOException ex) {
                 ex.printStackTrace();
             } catch (Exception e) {

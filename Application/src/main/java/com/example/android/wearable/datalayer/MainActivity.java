@@ -88,6 +88,8 @@ public class MainActivity extends Activity
         Wearable.getMessageClient(this).addListener(this);
         Wearable.getCapabilityClient(this)
                 .addListener(this, Uri.parse("wear://"), CapabilityClient.FILTER_REACHABLE);
+
+        //onlyForTest();
     }
     @Override
     public void onDestroy() {
@@ -110,7 +112,6 @@ public class MainActivity extends Activity
                     DataMapItem dataMapItem = DataMapItem.fromDataItem(event.getDataItem());
                     Asset phoneDataAsset = dataMapItem.getDataMap().getAsset(STMI_SENSOR_KEY);
                     new PhoneReceiverAsyncTask().execute(phoneDataAsset);
-
                 } else {
                     Log.d(TAG, "Unrecognized path: " + path);
                 }
@@ -255,13 +256,17 @@ public class MainActivity extends Activity
         }
     }
     protected void STMISensorDataWritterPhone(String sensorRawData){
+
         File root = new File(MainActivity.this.getFilesDir(), "SensorDataFile");
         File gpxfile=null;
         if (!root.exists()) {
             root.mkdir();
         }
-
+        Log.e(TAG,"STMISensorDataWritterPhone I am here");
+        String fileName=sensorRawData.substring(sensorRawData.lastIndexOf("Channel the file name starts")+28,sensorRawData.lastIndexOf("Channel the file name ends"));
+        sensorRawData=sensorRawData.substring(sensorRawData.indexOf("\n"),200);
         try {
+            /*
             String[] fileListAr = root.list();
             int fileAddressIndex = 0;
             for (String fileList : fileListAr) {
@@ -277,6 +282,11 @@ public class MainActivity extends Activity
 
             fileAddressIndex++;//The index of the new file
             gpxfile = new File(root, "RawData"+fileAddressIndex+".txt");
+
+
+
+             */
+            gpxfile = new File(root, fileName);
             FileWriter writer = new FileWriter(gpxfile);
             writer.write(sensorRawData);
             writer.flush();
@@ -292,5 +302,15 @@ public class MainActivity extends Activity
             return false;
         }
         return true;
+    }
+    public void onlyForTest(){
+        File root = new File(this.getFilesDir(), "SensorDataFile");
+        if (root.exists()) {
+            String[] entries = root.list();
+            for (String s : entries) {
+                File currentFile = new File(root.getPath(), s);
+                currentFile.delete();
+            }
+        }
     }
 }
