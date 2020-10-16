@@ -63,7 +63,9 @@ public class MainActivity extends FragmentActivity
 
     @Override
     public void onMessageReceived(MessageEvent event) {
-        Log.e(TAG, "onMessageReceived " + event);
+        Log.e(TAG, "onMessageReceived" + event);
+        //for(int counter=0;counter<20;counter++)
+            //Log.e(TAG,"onMessageReceived"+ " filename="+sensorReader.fileToBeSent.get(counter));
         if (event.getPath().equals(STMIWatchListenerService.STMI_TRANSMISSION_PATH)){
 
             for (int counter=0;counter<sensorReader.fileToBeSent.size();counter++) {
@@ -71,8 +73,9 @@ public class MainActivity extends FragmentActivity
                 String fileName=sensorReader.fileToBeSent.get(counter);
                 fileName=fileName.substring(fileName.lastIndexOf('/')+1);
                 new SendDataAsyncTask().execute(sensorReader.fileToBeSent.get(counter),fileName);
-                sensorReader.fileToBeSent.remove(counter);
-                Log.e(TAG,"STMISensorDataWritterPhone I am here Watch");
+                //Log.e(TAG,"onMessageReceived"+ " filename="+sensorReader.fileToBeSent.remove(counter));
+                //sensorReader.fileToBeSent.set(counter,null);
+
             }
 
 
@@ -92,8 +95,11 @@ public class MainActivity extends FragmentActivity
                     rawDataContext += EOFGaurd + "\n";
                     EOFGaurd = bufferedReader.readLine();
                 }
-                String fileName="Channel the file name starts"+params[1]+"Channel the file name ends \n";
+                String fileName=params[1]+"\n";
                 byteStream.write(fileName.getBytes());
+                String fileCapacity=String.valueOf(sensorReader.recordCapacity)+"\n";
+                byteStream.write(fileCapacity.getBytes());
+
                 byteStream.write(rawDataContext.getBytes());
 
                 Asset wearableDataAsset = Asset.createFromBytes(byteStream.toByteArray());
@@ -103,8 +109,11 @@ public class MainActivity extends FragmentActivity
                 PutDataRequest request = dataMap.asPutDataRequest();
                 request.setUrgent();
                 Wearable.getDataClient(getApplicationContext()).putDataItem(request);
+
                 Log.i(TAG, "SendDataAsyncTask is sent!");
                 byteStream.close();
+                wearableDataAsset.close();
+
             } catch (IOException ex) {
                 ex.printStackTrace();
             } catch (Exception e) {

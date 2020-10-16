@@ -28,7 +28,8 @@ public class SensorReader extends FragmentActivity implements SensorEventListene
     private SensorManager sensorManager;
     private File fileAddressDest;
 
-    private int recordCapacity;
+    public int recordCapacity;
+    public int strID;
 
     private int accelerometerCounter;
     private int magnetometerCounter;
@@ -59,7 +60,8 @@ public class SensorReader extends FragmentActivity implements SensorEventListene
         */
 
         try {
-            recordCapacity = 1000;
+            recordCapacity = 100;
+            strID=10;
             df = new DecimalFormat("###.###");
 
             fileToBeSent=new ArrayList<>();
@@ -99,7 +101,7 @@ public class SensorReader extends FragmentActivity implements SensorEventListene
             Sensor magneticSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
             Sensor gyroscopeSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
             Sensor gravitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
-            Sensor heartRateSensor = sensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
+            Sensor heartBeatSensor = sensorManager.getDefaultSensor(Sensor.TYPE_HEART_BEAT);
 
             if (accelerometerSensor != null) {
                 sensorManager.registerListener(this, accelerometerSensor,
@@ -121,8 +123,8 @@ public class SensorReader extends FragmentActivity implements SensorEventListene
                         SensorManager.SENSOR_DELAY_NORMAL, SensorManager.SENSOR_DELAY_UI);
             }
 
-            if (heartRateSensor != null) {
-                sensorManager.registerListener(this, heartRateSensor,
+            if (heartBeatSensor != null) {
+                sensorManager.registerListener(this, heartBeatSensor,
                         SensorManager.SENSOR_DELAY_NORMAL, SensorManager.SENSOR_DELAY_UI);
             }
         }catch (Exception e) {
@@ -175,18 +177,26 @@ public class SensorReader extends FragmentActivity implements SensorEventListene
             gyroscopeCounter=eventRecorder(gyroscopeList, "Gyroscope",gyroscopeCounter, event.values,dayOfYear, timeNow);
         }
         else if (event.sensor.getType() == Sensor.TYPE_HEART_BEAT) {
-            //Log.e(TAG, "gyroX="+df.format(event.values[0])+"\t gyroY="+df.format(event.values[1])+"\t gyroZ="+df.format(event.values[2]));
-            heartBeatCounter=eventRecorder(heartBeatList, "HeartRate",heartBeatCounter, event.values,dayOfYear, timeNow);
+            float[] temporaryValue=new float[1];
+            temporaryValue[0]=(int) (event.values[0]*100);
+            //Log.e(TAG, "heart rate="+temporaryValue[0]);
+            heartBeatCounter=eventRecorder(heartBeatList, "HeartBeat",heartBeatCounter, temporaryValue,dayOfYear, timeNow);
         }
     }
     protected int eventRecorder(ArrayList<ArrayList<String>> dataList, String parameterName,Integer parameterCounter, float[] eventParameters,int dayOfYear, long eventTime){
         try {
+            //Log.e(TAG,"eventRecorder \t="+eventParameters[0]);
             for (int fieldCounter = 0; fieldCounter < eventParameters.length; fieldCounter++) {
-                String str = String.format("%.5f", eventParameters[fieldCounter]);
+                String str="";
+                if (parameterName=="HeartBeat")
+                    str = String.format("%3.0f", eventParameters[fieldCounter]);
+                else
+                    str = String.format("%3.5f", eventParameters[fieldCounter]);
                 dataList.get(parameterCounter).set(fieldCounter, str);
             }
-            dataList.get(parameterCounter).set(eventParameters.length, String.valueOf(dayOfYear));
-            dataList.get(parameterCounter).set(eventParameters.length + 1, String.valueOf(eventTime));
+
+            dataList.get(parameterCounter).set(eventParameters.length, String.valueOf(eventTime));
+            dataList.get(parameterCounter).set(eventParameters.length+1, String.valueOf(dayOfYear));
 
             parameterCounter++;
             if (parameterCounter == recordCapacity) {
@@ -205,16 +215,29 @@ public class SensorReader extends FragmentActivity implements SensorEventListene
         File fileName=null;
         int fileAddressIndex = 0;
         try {
-            String sensorContext;
-            if(myList.get(0).size()==5)
-                sensorContext="X \t Y \t Z \t Day of Year \t millisecond\n";
-            else
-                sensorContext="Var \t Day of Year \t millisecond\n";
+            String sensorContext="";
+            if(myList.get(0).size()==5) {
+                sensorContext = "X \t Y \t Z \t Time(mili-sec) \t Day of Year \n";
+            }
+            else if(myList.get(0).size()==3) {
+                sensorContext = "Var \t Time(mili-sec) \t Day of Year \n";
+            }
+
+            int elementSize=myList.get(0).size();
             for (int rowCounter=0;rowCounter<myList.size();rowCounter++) {
-                for (int columnCounter = 0; columnCounter < myList.get(rowCounter).size(); columnCounter++) {
-                    sensorContext+=myList.get(rowCounter).get(columnCounter).toString() + "\t";
+                for (int columnCounter = 0; columnCounter < elementSize; columnCounter++) {
+                    if (columnCounter == elementSize - 1) {//this is the day of year
+                        if (rowCounter != 0) {//this is not the first row of data
+                            if (myList.get(rowCounter).get(columnCounter).equals(
+                                myList.get(0).get(columnCounter))) {
+                                sensorContext+="S";//if the doy is the same, skipping its value
+                                continue;
+                            }
+                        }
+                    }
+                    sensorContext += myList.get(rowCounter).get(columnCounter).toString() + "\t";
                 }
-                sensorContext+="\n";
+                sensorContext += "\n";
             }
 
             if (!root.exists())
@@ -240,7 +263,7 @@ public class SensorReader extends FragmentActivity implements SensorEventListene
             writer.flush();
             writer.close();
             fileToBeSent.add(fileName.getPath()+"");
-            //Log.e(TAG,"mine="+ParameterName+fileName.getPath());
+            //Log.e(TAG,"mine="+fileName.getPath()+"");
         } catch (Exception e) {
             Log.e(TAG,"writtingSensorToFile \t"+e.getMessage());
         }

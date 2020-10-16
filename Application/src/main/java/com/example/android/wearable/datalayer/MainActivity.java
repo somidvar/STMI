@@ -89,7 +89,7 @@ public class MainActivity extends Activity
         Wearable.getCapabilityClient(this)
                 .addListener(this, Uri.parse("wear://"), CapabilityClient.FILTER_REACHABLE);
 
-        //onlyForTest();
+        onlyForTest();
     }
     @Override
     public void onDestroy() {
@@ -247,7 +247,8 @@ public class MainActivity extends Activity
                     }
                     assetInputStream.close();
                     STMISensorDataWritterPhone(phoneAssetStr);
-                    Log.e(TAG, "Data is: "+phoneAssetStr);
+
+                    Log.e(TAG, "Data is: "+phoneAssetStr.substring(0,phoneAssetStr.indexOf('\n')));
                 }
             }catch (Exception e){
                 Log.e(TAG, "PhoneReceiverAsyncTask" + e.getMessage());
@@ -262,15 +263,16 @@ public class MainActivity extends Activity
         if (!root.exists()) {
             root.mkdir();
         }
-        Log.e(TAG,"STMISensorDataWritterPhone I am here");
-        String fileName=sensorRawData.substring(sensorRawData.lastIndexOf("Channel the file name starts")+28,sensorRawData.lastIndexOf("Channel the file name ends"));
-        sensorRawData=sensorRawData.substring(sensorRawData.indexOf("\n"),200);
+
+        String fileName="";
+        int fileCapacity=-1;
         try {
             /*
             String[] fileListAr = root.list();
             int fileAddressIndex = 0;
             for (String fileList : fileListAr) {
                 if (fileList.contains("RawData") && fileList.contains(".txt")) {
+
                     int IndexTemp2 = fileList.indexOf('.');
                     String AddressTemp = fileList.substring(7, IndexTemp2);
                     if (AddressTemp == "" || !isNumber(AddressTemp))
@@ -283,15 +285,24 @@ public class MainActivity extends Activity
             fileAddressIndex++;//The index of the new file
             gpxfile = new File(root, "RawData"+fileAddressIndex+".txt");
 
+*/
 
 
-             */
+            fileName=sensorRawData.substring(0,sensorRawData.indexOf('\n'));
+            sensorRawData=sensorRawData.substring(sensorRawData.indexOf('\n')+1);
+            fileCapacity=Integer.parseInt(sensorRawData.substring(0,sensorRawData.indexOf('\n')));
+            sensorRawData=sensorRawData.substring(sensorRawData.indexOf('\n')+1);
+
+            Log.e(TAG,"STMISensorDataWritter==="+fileName);
+
+
             gpxfile = new File(root, fileName);
             FileWriter writer = new FileWriter(gpxfile);
             writer.write(sensorRawData);
             writer.flush();
             writer.close();
-        } catch (Exception e) {
+
+         } catch (Exception e) {
             Log.e(TAG,"STMISensorDataWritterPhone"+e.getMessage());
         }
     }
