@@ -18,6 +18,9 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.wear.ambient.AmbientModeSupport;
 
 import com.google.android.gms.wearable.Asset;
+import com.google.android.gms.wearable.DataClient;
+import com.google.android.gms.wearable.DataEvent;
+import com.google.android.gms.wearable.DataEventBuffer;
 import com.google.android.gms.wearable.MessageClient;
 import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.PutDataMapRequest;
@@ -35,8 +38,8 @@ import java.util.concurrent.TimeUnit;
 
 
 public class MainActivity extends FragmentActivity
-        implements AmbientModeSupport.AmbientCallbackProvider
-                ,MessageClient.OnMessageReceivedListener
+        implements AmbientModeSupport.AmbientCallbackProvider,DataClient.OnDataChangedListener,
+                MessageClient.OnMessageReceivedListener
 {
 
     private static final String TAG = "MainActivity";
@@ -47,6 +50,7 @@ public class MainActivity extends FragmentActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
         Wearable.getMessageClient(this).addListener(this);
+        Wearable.getDataClient(this).addListener(this);
 
         AmbientModeSupport.attach(this);
         //STMISensorDataWritter();
@@ -54,6 +58,7 @@ public class MainActivity extends FragmentActivity
         SensorManager sensorManager = (SensorManager) getSystemService(myContext.SENSOR_SERVICE);
         sensorReader = new SensorReader(sensorManager,MainActivity.this.getFilesDir());
     }
+
 
     @Override
     protected void onDestroy() {
@@ -64,19 +69,7 @@ public class MainActivity extends FragmentActivity
     @Override
     public void onMessageReceived(MessageEvent event) {
         Log.e(TAG, "onMessageReceived" + event);
-        //for(int counter=0;counter<20;counter++)
-            //Log.e(TAG,"onMessageReceived"+ " filename="+sensorReader.fileToBeSent.get(counter));
         if (event.getPath().equals(STMIWatchListenerService.STMI_TRANSMISSION_PATH)){
-
-            for (int counter=0;counter<sensorReader.fileToBeSent.size();counter++) {
-                //String sensorRawDataStr = "/data/data/com.example.android.wearable.datalayer/files/SensorDataFile/RawData.txt";
-                String fileName=sensorReader.fileToBeSent.get(counter);
-                fileName=fileName.substring(fileName.lastIndexOf('/')+1);
-                new SendDataAsyncTask().execute(sensorReader.fileToBeSent.get(counter),fileName);
-                //Log.e(TAG,"onMessageReceived"+ " filename="+sensorReader.fileToBeSent.remove(counter));
-                //sensorReader.fileToBeSent.set(counter,null);
-
-            }
 
 
         }
@@ -97,8 +90,8 @@ public class MainActivity extends FragmentActivity
                 }
                 String fileName=params[1]+"\n";
                 byteStream.write(fileName.getBytes());
-                String fileCapacity=String.valueOf(sensorReader.recordCapacity)+"\n";
-                byteStream.write(fileCapacity.getBytes());
+                //String fileCapacity=String.valueOf(sensorReader.recordCapacity)+"\n";
+                //byteStream.write(fileCapacity.getBytes());
 
                 byteStream.write(rawDataContext.getBytes());
 
@@ -107,13 +100,10 @@ public class MainActivity extends FragmentActivity
                 dataMap.getDataMap().putAsset(STMIWatchListenerService.STMI_SENSOR_KEY, wearableDataAsset);
                 dataMap.getDataMap().putLong("time", new Date().getTime());
                 PutDataRequest request = dataMap.asPutDataRequest();
-                request.setUrgent();
+                //request.setUrgent();
                 Wearable.getDataClient(getApplicationContext()).putDataItem(request);
-
                 Log.i(TAG, "SendDataAsyncTask is sent!");
                 byteStream.close();
-                wearableDataAsset.close();
-
             } catch (IOException ex) {
                 ex.printStackTrace();
             } catch (Exception e) {
@@ -121,6 +111,49 @@ public class MainActivity extends FragmentActivity
             }
             return null;
         }
+    }
+
+    @Override
+    public void onDataChanged(DataEventBuffer dataEvents) {
+        Log.e(TAG, "onDataChanged transfer initializing");
+        try {
+            String sensorRawDataStr = "/data/data/com.example.android.wearable.datalayer/files/SensorDataFile/7.txt";
+            new SendDataAsyncTask().execute(sensorRawDataStr, "7.txt");
+
+            /*
+            String sensorRawDataStr1 = "/data/data/com.example.android.wearable.datalayer/files/SensorDataFile/2.txt";
+            new SendDataAsyncTask().execute(sensorRawDataStr1, "2.txt");
+
+            String sensorRawDataStr2 = "/data/data/com.example.android.wearable.datalayer/files/SensorDataFile/3.txt";
+            new SendDataAsyncTask().execute(sensorRawDataStr2, "3.txt");
+
+
+            String sensorRawDataStr3 = "/data/data/com.example.android.wearable.datalayer/files/SensorDataFile/4.txt";
+            new SendDataAsyncTask().execute(sensorRawDataStr3, "4.txt");
+
+            String sensorRawDataStr4 = "/data/data/com.example.android.wearable.datalayer/files/SensorDataFile/5.txt";
+            new SendDataAsyncTask().execute(sensorRawDataStr4, "5.txt");
+
+            String sensorRawDataStr5 = "/data/data/com.example.android.wearable.datalayer/files/SensorDataFile/6.txt";
+            new SendDataAsyncTask().execute(sensorRawDataStr5, "6.txt");
+
+             */
+        }catch (Exception e) {
+            Log.e(TAG, "onDataChanged" + e.getMessage());
+        }
+        /*
+        for (int counter=0;counter<sensorReader.fileToBeSent.size();counter++) {
+
+            String fileName=sensorReader.fileToBeSent.get(counter);
+            if(fileName=="")
+                continue;
+            fileName=fileName.substring(fileName.lastIndexOf('/')+1);
+            new SendDataAsyncTask().execute(sensorReader.fileToBeSent.get(counter),fileName);
+            Log.e(TAG,"onDataChanged sending file:"+sensorReader.fileToBeSent.get(counter));
+            sensorReader.fileToBeSent.set(counter,"");
+        }
+
+         */
     }
 
     @Override

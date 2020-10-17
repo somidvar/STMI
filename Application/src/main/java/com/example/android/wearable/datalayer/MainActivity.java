@@ -82,7 +82,7 @@ public class MainActivity extends Activity
 
         mDataItemGeneratorFuture =
                 mGeneratorExecutor.scheduleWithFixedDelay(
-                        new DataItemGenerator(), 1, 5, TimeUnit.SECONDS);
+                        new DataItemGenerator(), 1, 10, TimeUnit.SECONDS);
 
         Wearable.getDataClient(this).addListener(this);
         Wearable.getMessageClient(this).addListener(this);
@@ -290,8 +290,8 @@ public class MainActivity extends Activity
 
             fileName=sensorRawData.substring(0,sensorRawData.indexOf('\n'));
             sensorRawData=sensorRawData.substring(sensorRawData.indexOf('\n')+1);
-            fileCapacity=Integer.parseInt(sensorRawData.substring(0,sensorRawData.indexOf('\n')));
-            sensorRawData=sensorRawData.substring(sensorRawData.indexOf('\n')+1);
+            //fileCapacity=Integer.parseInt(sensorRawData.substring(0,sensorRawData.indexOf('\n')));
+            //sensorRawData=sensorRawData.substring(sensorRawData.indexOf('\n')+1);
 
             Log.e(TAG,"STMISensorDataWritter==="+fileName);
 
