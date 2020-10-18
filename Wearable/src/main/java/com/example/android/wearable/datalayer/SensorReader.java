@@ -1,26 +1,18 @@
 package com.example.android.wearable.datalayer;
 
-import android.app.usage.UsageEvents;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.nfc.Tag;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 import com.google.android.gms.wearable.DataClient;
 import com.google.android.gms.wearable.DataEventBuffer;
-
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.List;
-
-import static java.lang.Math.round;
 
 public class SensorReader extends FragmentActivity implements SensorEventListener, DataClient.OnDataChangedListener {
     private static final String TAG = "sensorReader";
@@ -46,8 +38,6 @@ public class SensorReader extends FragmentActivity implements SensorEventListene
     private int readingStrid;
     private int elementNumber=7;
 
-
-
     ArrayList<ArrayList<Float>> accelerometerList;
     ArrayList<ArrayList<Float>> magnetometerList;
     ArrayList<ArrayList<Float>> gyroscopeList;
@@ -57,8 +47,6 @@ public class SensorReader extends FragmentActivity implements SensorEventListene
     ArrayList<String> fileToBeSent;
 
     SensorReader(SensorManager sensorManager, File fileAddressDest){
-
-        //Log.d(TAG,"constructor");
         this.sensorManager = sensorManager;
         this.fileAddressDest=fileAddressDest;
 
@@ -148,27 +136,7 @@ public class SensorReader extends FragmentActivity implements SensorEventListene
     }
 
     public void onSensorChanged(SensorEvent event) {
-        //Log.d(TAG,"onSensorChanged \t hi");
-        /*
-        else if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
-            //Log.e(TAG, "magnoX="+df.format(event.values[0])+"\t magnoY="+df.format(event.values[1])+"\t magnoZ="+df.format(event.values[2]));
-
-            for (int fieldCounter = 0; fieldCounter < 3; fieldCounter++) {
-                String str = String.format("%.5f", event.values[fieldCounter]);
-                gyroscopeList.get(gyroscopeCounter).set(fieldCounter,str);
-            }
-            gyroscopeList.get(magnetometerCounter).set(3,String.valueOf(hour));
-            magnetometerList.get(magnetometerCounter).set(4,String.valueOf(eventTime));
-
-            magnetometerCounter++;
-            if(magnetometerCounter==recordCapacity){
-                writtingSensorToFile(magnetometerList,"Magnetometer");
-                magnetometerCounter=0;
-            }
-
-        }
-         */
-        if(!timeOffsetGaurd){//to be more accurate the evenet timestamp is used. however it is starting with an arbitrary value. So by using the timeOffset, the origine is set to the Jan 1 2020.
+        if(!timeOffsetGaurd){//to be more accurate the event timestamp is used. however it is starting with an arbitrary value. So by using the timeOffset, the origine is set to the Jan 1 2020.
             timeOffset=System.currentTimeMillis();
             timeOffset-=(long) 50 * 365 * 24 * 3600 * 1000;//moving it to Jan 1 2020
             timeOffset-=(long) 12*24*3600*1000;//correction of the leap years
@@ -206,11 +174,9 @@ public class SensorReader extends FragmentActivity implements SensorEventListene
             //Log.e(TAG, "heart rate="+temporaryValue[0]);
             heartBeatCounter = eventRecorder(heartBeatList, "Heart", heartBeatCounter, heartArray, dayOfYear, hour, minute, miliSec);
         }
-        //Log.d(TAG,"onSensorChanged \t bye");
     }
     protected int eventRecorder(ArrayList<ArrayList<Float>> dataList, String parameterName,int parameterCounter, float[] eventParameters,int dayOfYear,int hour,int minute, long miliSec){
         try {
-            //Log.d(TAG,"eventRecorder ");
             for (int fieldCounter = 0; fieldCounter < eventParameters.length; fieldCounter++) {
                 dataList.get(parameterCounter).set(fieldCounter, eventParameters[fieldCounter]);
             }
@@ -226,6 +192,7 @@ public class SensorReader extends FragmentActivity implements SensorEventListene
                 float current=dataList.get(parameterCounter).get(eventParameters.length + 2);
                 float prev=dataList.get(parameterCounter-1).get(eventParameters.length + 2);
                 if (current !=prev) {
+                    Log.e(TAG,"eventRecorder, I'll go to writting");
                     parameterStart=0;
                     parameterEnd=parameterCounter;
                     writtingSensorToFile(dataList, parameterName, parameterStart,parameterEnd,
@@ -233,14 +200,13 @@ public class SensorReader extends FragmentActivity implements SensorEventListene
                             dataList.get(parameterCounter-1).get(eventParameters.length + 1),
                             dataList.get(parameterCounter-1).get(eventParameters.length + 2));
 
-                    /*
-                    parameterStart=parameterCounter;//loosing one data point which is not significant
+                    parameterStart=parameterCounter;
                     parameterEnd=parameterCounter+1;
                     writtingSensorToFile(dataList, parameterName, parameterStart,parameterEnd,
                             dataList.get(parameterCounter).get(eventParameters.length + 0),
                             dataList.get(parameterCounter).get(eventParameters.length + 1),
                             dataList.get(parameterCounter).get(eventParameters.length + 2));
-                     */
+
                     parameterCounter = 0;
                     return parameterCounter;
                 }
@@ -253,35 +219,14 @@ public class SensorReader extends FragmentActivity implements SensorEventListene
     }
     protected void writtingSensorToFile(ArrayList<ArrayList<Float>> myList, String parameterName,
                                         int parameterStart,int parameterEnd,float dayOfYear,float hour,float minute){
-        Log.e(TAG,"writing "+parameterName+" in writtingSensorToFile");
+        Log.i(TAG,"writtingSensorToFile writing "+parameterName);
 
         File root = new File(this.fileAddressDest, "SensorDataFile");
         File fileName=null;
-
         try {
             if (!root.exists())
                 root.mkdir();
-/*
-            int fileAddressIndex = 0;
 
-            String[] fileListAr = root.list();
-            for (String fileList : fileListAr) {
-                if (fileList.contains("RawData") &&fileList.contains(ParameterName) && fileList.contains(".txt")) {
-                    int indexTemp1 = fileList.lastIndexOf('-');
-                    int indexTemp2 = fileList.indexOf('.');
-                    String AddressTemp = fileList.substring(indexTemp1+1, indexTemp2);
-                    if (AddressTemp == "" || !isNumber(AddressTemp))
-                        continue;
-                    if (fileAddressIndex < Integer.parseInt(AddressTemp))
-                        fileAddressIndex = Integer.parseInt(AddressTemp);
-                }
-            }
-            fileAddressIndex++;//writting the new file
-
-
- */
-            //fileName = new File(root, ParameterName+"-"+String.format("%03d",(int) dayOfYear)+"-"
-              //      +String.format("%02d",(int)hour)+"-"+String.format("%02d",(int) minute)+".txt");
             StringBuffer stringBuffer=new StringBuffer("");
             fileName = new File(root, parameterName+"-"+String.format("%03d",(int) dayOfYear)+"-"
                     +String.format("%02d",(int)hour)+"-"+String.format("%02d",(int)minute)+".txt");
@@ -289,9 +234,9 @@ public class SensorReader extends FragmentActivity implements SensorEventListene
             FileWriter writer = new FileWriter(fileName,true);
             if(!fileExistance) {
                 if (myList.get(0).size() == 7)
-                    writer.write("X\tY\tZ\tDay\tHour\tmili-sec\n");
+                    writer.write("X\tY\tZ\tDay\tHour\tMinute\tmili-sec\n");
                 else
-                    writer.write("Beat\tDay\tHour\tmili-sec\n");
+                    writer.write("Beat\tDay\tHour\tMinute\tmili-sec\n");
             }
 
             String sensorContext="";
@@ -327,23 +272,12 @@ public class SensorReader extends FragmentActivity implements SensorEventListene
             Log.e(TAG,"writtingSensorToFile \t"+e.getMessage());
         }
     }
-
-    private boolean isNumber(String fileAddress){
-        try{
-            Integer.parseInt(fileAddress);
-        }catch (Exception e){
-            return false;
-        }
-        return true;
-    }
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
-        Log.d(TAG,"onAccuracyChanged");
     }
 
     @Override
     public void onDataChanged(@NonNull DataEventBuffer dataEventBuffer) {
-
     }
 
     public void onlyForTest(){

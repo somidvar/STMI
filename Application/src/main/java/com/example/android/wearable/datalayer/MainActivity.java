@@ -12,13 +12,10 @@ import android.app.Activity;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.Telephony;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
-
 import androidx.annotation.WorkerThread;
-
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
@@ -36,12 +33,8 @@ import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
-
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -66,8 +59,6 @@ public class MainActivity extends Activity
     private static final String COUNT_KEY = "count";
 
     private static final String STMI_SENSOR_PATH = "/sensor";
-    private static final String STMI_SENSOR_KEY = "sensor";
-    private static final String STMI_SENSOR_KEY_2 = "sensor2";
     private static final String STMI_TRANSMISSION_PATH = "/transmission";
 
     private TextView myTextView;
@@ -108,28 +99,19 @@ public class MainActivity extends Activity
 
     @Override
     public void onDataChanged(DataEventBuffer dataEvents) {
-        Log.e(TAG, "onDataChanged: " + dataEvents);
         for (DataEvent event : dataEvents) {
-            Log.e(TAG, "STMI_SENSOR_PATH inside the for");
             if (event.getType() == DataEvent.TYPE_CHANGED) {
                 String path = event.getDataItem().getUri().getPath();
-                Log.e(TAG, "HERE 2: PATH: " + path);
-
                 if (STMI_SENSOR_PATH.equals(path)) {
-                    Log.e(TAG, "STMI_SENSOR_PATH inside the second if");
                     DataMapItem dataMapItem = DataMapItem.fromDataItem(event.getDataItem());
-
-                    int read_data = 0;
+                    int readData = 0;
                     for (String key : dataMapItem.getDataMap().keySet()){
                         if (key.equals("time")) continue;;
-                        Log.e(TAG, "Key: " + key);
                         Asset phoneDataAsset = dataMapItem.getDataMap().getAsset(key);
                         new PhoneReceiverAsyncTask().execute(phoneDataAsset);
-                        read_data++;
+                        readData++;
                     }
-
-                    Log.e(TAG, "Read count: " + read_data);
-                } else {
+                }else{
                     Log.e(TAG, "Unrecognized path: " + path);
                 }
             }
@@ -152,11 +134,8 @@ public class MainActivity extends Activity
                 Wearable.getMessageClient(this).sendMessage(node, STMI_TRANSMISSION_PATH, new byte[0]);
 
         try {
-            // Block on a task and get the result synchronously (because this is on a background
-            // thread).
             Integer result = Tasks.await(sendMessageTask);
             Log.i(TAG, "Message sent: " + result);
-
         } catch (ExecutionException exception) {
             Log.e(TAG, "Task failed: " + exception);
 
@@ -173,8 +152,6 @@ public class MainActivity extends Activity
                 Wearable.getNodeClient(getApplicationContext()).getConnectedNodes();
 
         try {
-            // Block on a task and get the result synchronously (because this is on a background
-            // thread).
             List<Node> nodes = Tasks.await(nodeListTask);
 
             for (Node node : nodes) {
@@ -187,7 +164,6 @@ public class MainActivity extends Activity
         } catch (InterruptedException exception) {
             Log.e(TAG, "Interrupt occurred: " + exception);
         }
-
         return results;
     }
 
@@ -203,7 +179,6 @@ public class MainActivity extends Activity
         }
     }
 
-    /** Generates a DataItem based on an incrementing count. */
     private class DataItemGenerator implements Runnable {
         private int count = 0;
 
@@ -220,8 +195,6 @@ public class MainActivity extends Activity
                     Wearable.getDataClient(getApplicationContext()).putDataItem(request);
 
             try {
-                // Block on a task and get the result synchronously (because this is on a background
-                // thread).
                 DataItem dataItem = Tasks.await(dataItemTask);
                 Log.i(TAG, "DataItem saved: " + dataItem);
 
@@ -242,23 +215,16 @@ public class MainActivity extends Activity
 
         @Override
         protected Void doInBackground(Asset... assets) {
-            Log.e(TAG, "HERE 1");
-
-            Log.e(TAG, "Asset is null debug.");
             Asset phoneAsset;
             if (assets.length > 0 && assets[0] != null) {
                 phoneAsset = assets[0];
             }else{
                 return null;
             }
-
-            Log.e(TAG, "Asset is null debug.");
             Task<DataClient.GetFdForAssetResponse> getFdForAssetResponseTask =
                     Wearable.getDataClient(getApplicationContext()).getFdForAsset(phoneAsset);
             getFdForAssetResponseTask.addOnSuccessListener(this);
-            Log.e(TAG, "Got task");
             try {
-
                 DataClient.GetFdForAssetResponse getFdForAssetResponse =
                         Tasks.await(getFdForAssetResponseTask);
                 InputStream assetInputStream = getFdForAssetResponse.getInputStream();
@@ -266,20 +232,17 @@ public class MainActivity extends Activity
                 String str = "";
                 StringBuffer stringBuffer = new StringBuffer();
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(assetInputStream));
-                Log.e(TAG, "Before Conversion");
                 if (assetInputStream != null) {
                     while ((str = bufferedReader.readLine()) != null) {
                         stringBuffer.append(str + "\n" );
                     }
                 }
-                Log.e(TAG, "After Conversion");
                 bufferedReader.close();
                 assetInputStream.close();
                 String phoneAssetStr = stringBuffer.toString();
                 Log.e(TAG, "Data is: "+phoneAssetStr.substring(0,phoneAssetStr.indexOf('\n')));
 
                 STMISensorDataWritterPhone(phoneAssetStr);
-
             }catch (Exception e){
                 Log.e(TAG, "PhoneReceiverAsyncTask" + e.getMessage());
             }
@@ -300,54 +263,19 @@ public class MainActivity extends Activity
         }
 
         String fileName="";
-        int fileCapacity=-1;
         try {
-            /*
-            String[] fileListAr = root.list();
-            int fileAddressIndex = 0;
-            for (String fileList : fileListAr) {
-                if (fileList.contains("RawData") && fileList.contains(".txt")) {
-
-                    int IndexTemp2 = fileList.indexOf('.');
-                    String AddressTemp = fileList.substring(7, IndexTemp2);
-                    if (AddressTemp == "" || !isNumber(AddressTemp))
-                        continue;
-                    if (fileAddressIndex < Integer.parseInt(AddressTemp))
-                        fileAddressIndex = Integer.parseInt(AddressTemp);
-                }
-            }
-
-            fileAddressIndex++;//The index of the new file
-            gpxfile = new File(root, "RawData"+fileAddressIndex+".txt");
-
-*/
-
-
             fileName=sensorRawData.substring(0,sensorRawData.indexOf('\n'));
             sensorRawData=sensorRawData.substring(sensorRawData.indexOf('\n')+1);
-            //fileCapacity=Integer.parseInt(sensorRawData.substring(0,sensorRawData.indexOf('\n')));
-            //sensorRawData=sensorRawData.substring(sensorRawData.indexOf('\n')+1);
-
-            Log.e(TAG,"STMISensorDataWritter==="+fileName);
-
 
             gpxfile = new File(root, fileName);
             FileWriter writer = new FileWriter(gpxfile);
             writer.write(sensorRawData);
             writer.flush();
             writer.close();
-
+            Log.e(TAG,"STMISensorDataWritter==="+fileName);
          } catch (Exception e) {
             Log.e(TAG,"STMISensorDataWritterPhone"+e.getMessage());
         }
-    }
-    private boolean isNumber(String fileAddress){
-        try{
-            Integer.parseInt(fileAddress);
-        }catch (Exception e){
-            return false;
-        }
-        return true;
     }
     public void onlyForTest(){
         File root = new File(this.getFilesDir(), "SensorDataFile");

@@ -11,12 +11,9 @@ package com.example.android.wearable.datalayer;
 import android.content.Context;
 import android.hardware.SensorManager;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.fragment.app.FragmentActivity;
 import androidx.wear.ambient.AmbientModeSupport;
 
@@ -25,32 +22,17 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.wearable.Asset;
 import com.google.android.gms.wearable.DataClient;
-import com.google.android.gms.wearable.DataEvent;
 import com.google.android.gms.wearable.DataEventBuffer;
 import com.google.android.gms.wearable.DataItem;
-import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.MessageClient;
 import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
-
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileDescriptor;
-import java.io.FileInputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Date;
-import java.util.Scanner;
-import java.util.concurrent.TimeUnit;
-
 
 public class MainActivity extends FragmentActivity
         implements AmbientModeSupport.AmbientCallbackProvider,DataClient.OnDataChangedListener,
@@ -59,7 +41,6 @@ public class MainActivity extends FragmentActivity
 
     private static final String TAG = "MainActivity";
     SensorReader sensorReader;
-    private boolean willbesend=true;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -69,12 +50,10 @@ public class MainActivity extends FragmentActivity
         Wearable.getDataClient(this).addListener(this);
 
         AmbientModeSupport.attach(this);
-        //STMISensorDataWritter();
         Context myContext = getApplicationContext();
         SensorManager sensorManager = (SensorManager) getSystemService(myContext.SENSOR_SERVICE);
         sensorReader = new SensorReader(sensorManager,MainActivity.this.getFilesDir());
     }
-
 
     @Override
     protected void onDestroy() {
@@ -84,69 +63,41 @@ public class MainActivity extends FragmentActivity
 
     @Override
     public void onMessageReceived(MessageEvent event) {
-        Log.e(TAG, "onMessageReceived" + event);
-        if (event.getPath().equals(STMIWatchListenerService.STMI_TRANSMISSION_PATH)){
-
-
-        }
     }
-
 
     @Override
     public void onDataChanged(DataEventBuffer dataEvents) {
-        Log.e(TAG, "onDataChanged transfer initializing");
         try {
-            for (int counter=0;counter<sensorReader.fileToBeSent.size();counter++) {
+            String fileName = "";
+            String fileAddress= "";
 
-                String fileName=sensorReader.fileToBeSent.get(counter);
-                if(fileName=="")
+            int assetSizeInt=0;
+            for (int counter = 0; counter < sensorReader.fileToBeSent.size(); counter++) {
+                String stringTemp=sensorReader.fileToBeSent.get(counter);
+                if(stringTemp=="")
                     continue;
-                fileName=fileName.substring(fileName.lastIndexOf('/')+1);
-                new SendDataAsyncTask().execute(sensorReader.fileToBeSent.get(counter),fileName);
-                Log.e(TAG,"onDataChanged sending file:"+sensorReader.fileToBeSent.get(counter));
-                sensorReader.fileToBeSent.set(counter,"");
+                fileAddress +=stringTemp+"\n";
+                fileName += stringTemp.substring(stringTemp.lastIndexOf('/') + 1)+"\n";
+                sensorReader.fileToBeSent.remove(counter);
+                assetSizeInt++;
             }
-//            if(willbesend) {
-//                willbesend=false;
-//                String sensorRawDataStr = "/data/data/com.example.android.wearable.datalayer/files/SensorDataFile/1.txt";
-//                String sensorRawDataStr4 = "/data/data/com.example.android.wearable.datalayer/files/SensorDataFile/2.txt";
-//
-//                new SendDataAsyncTask().execute(sensorRawDataStr, "1.txt", sensorRawDataStr4, "2.txt");
-//            }
-
-//                new SendDataAsyncTask().execute(sensorRawDataStr4, "test (4).txt");
-//                String sensorRawDataStr5 = "/data/data/com.example.android.wearable.datalayer/files/SensorDataFile/test (5).txt";
-//                new SendDataAsyncTask().execute(sensorRawDataStr5, "test (5).txt");
-//                String sensorRawDataStr6 = "/data/data/com.example.android.wearable.datalayer/files/SensorDataFile/test (6).txt";
-//                new SendDataAsyncTask().execute(sensorRawDataStr6, "test (6).txt");
-//                String sensorRawDataStr7 = "/data/data/com.example.android.wearable.datalayer/files/SensorDataFile/test (7).txt";
-//                new SendDataAsyncTask().execute(sensorRawDataStr7, "test (7).txt");
-//                String sensorRawDataStr8 = "/data/data/com.example.android.wearable.datalayer/files/SensorDataFile/test (8).txt";
-//                new SendDataAsyncTask().execute(sensorRawDataStr8, "test (8).txt");
-//                String sensorRawDataStr9 = "/data/data/com.example.android.wearable.datalayer/files/SensorDataFile/test (9).txt";
-//                new SendDataAsyncTask().execute(sensorRawDataStr9, "test (9).txt");
-
-
-        }catch (Exception e) {
+            if(assetSizeInt>0) {
+                String assetSizeStr = String.valueOf(assetSizeInt);
+                new SendDataAsyncTask().execute(fileAddress, fileName, assetSizeStr);
+            }
+        } catch (Exception e) {
             Log.e(TAG, "onDataChanged" + e.getMessage());
         }
-        /*
-
-
-         */
     }
-    private class SendDataAsyncTask extends AsyncTask<String, Void,Void> implements OnSuccessListener<DataItem>, OnFailureListener {
 
-        private ByteArrayOutputStream read_file(String path, String filename){
+    private class SendDataAsyncTask extends AsyncTask<String, Void,Void> implements OnSuccessListener<DataItem>, OnFailureListener {
+        private ByteArrayOutputStream readFile(String path, String filename){
             ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
             try{
-                Log.e(TAG, "Reading file.!");
-
                 BufferedReader bufferedReader = new BufferedReader(new FileReader(path),1024);
                 byteStream.write((filename + "\n").getBytes());
 
                 String line="";
-                int count=0;
                 while((line = bufferedReader.readLine()) != null){
                     byteStream.write((line+"\n").getBytes());
                 }
@@ -158,17 +109,27 @@ public class MainActivity extends FragmentActivity
             return byteStream;
         }
 
-        @RequiresApi(api = Build.VERSION_CODES.O)
         @Override
         protected Void doInBackground(String... params) {
-
             try {
-                Asset wearableDataAsset = Asset.createFromBytes(read_file(params[0], params[1]).toByteArray());
-                Asset wearableDataAsset2 = Asset.createFromBytes(read_file(params[2], params[3]).toByteArray());
-
+                String fileAddress=params[0];
+                String fileName=params[1];
+                int assetSize=Integer.parseInt(params[2]);
+                Asset[] assetArray=new Asset[assetSize];
                 PutDataMapRequest dataMap = PutDataMapRequest.create(STMIWatchListenerService.STMI_SENSOR_PATH);
-                dataMap.getDataMap().putAsset(params[1], wearableDataAsset);
-                dataMap.getDataMap().putAsset(params[3], wearableDataAsset2);
+                for(int counter=0;counter<assetSize;counter++){
+                    String elementAddress=fileAddress.substring(0,fileAddress.indexOf('\n'));
+                    String elementName=fileName.substring(0,fileName.indexOf('\n'));
+
+
+                    assetArray[counter] = Asset.createFromBytes(readFile(elementAddress, elementName).toByteArray());
+                    dataMap.getDataMap().putAsset(elementName,assetArray[counter]);
+
+                    Log.e(TAG,"name="+elementName+"\t address="+elementAddress);
+
+                    fileAddress=fileAddress.substring((fileAddress.indexOf('\n')+1));
+                    fileName=fileName.substring((fileName.indexOf('\n')+1));
+                }
                 dataMap.getDataMap().putLong("time", new Date().getTime());
                 PutDataRequest request = dataMap.asPutDataRequest();
                 request.setUrgent();
@@ -176,17 +137,6 @@ public class MainActivity extends FragmentActivity
 
                 putTask.addOnSuccessListener(this);
                 putTask.addOnFailureListener(this);
-                /*
-                PutDataMapRequest dataMap = PutDataMapRequest.create(STMIWatchListenerService.STMI_SENSOR_PATH);
-                dataMap.getDataMap().putAsset(STMIWatchListenerService.STMI_SENSOR_KEY, wearableDataAsset);
-                dataMap.getDataMap().putLong("time", new Date().getTime());
-                PutDataRequest request = dataMap.asPutDataRequest();
-                request.setUrgent();
-                Log.e(TAG, "5SendDataAsyncTask will be sent!");
-                Wearable.getDataClient(getApplicationContext()).putDataItem(request);
-                Log.e(TAG, "6SendDataAsyncTask will be sent!");
-
-                 */
             } catch (Exception e) {
                 Log.e(TAG, "SendDataAsyncTask" + e.getMessage());
             }
@@ -194,12 +144,12 @@ public class MainActivity extends FragmentActivity
         }
         @Override
         public void onSuccess(DataItem dataItem) {
-            Log.e(TAG,"Success in onSuccess: " + dataItem.getUri().toString());
+            Log.i(TAG,"Success in onSuccess: " + dataItem.getUri().toString());
         }
 
         @Override
         public void onFailure(@NonNull Exception e) {
-            Log.e(TAG,"Failure in onFailure:"+e.getMessage());
+            Log.i(TAG,"Failure in onFailure:"+e.getMessage());
         }
     }
 
@@ -224,5 +174,4 @@ public class MainActivity extends FragmentActivity
             super.onExitAmbient();
         }
     }
-
 }
