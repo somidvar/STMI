@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "applicationId": "com.example.android.wearable.datalayer",
+  "variantType": "BASE_APK",
+  "elements": [
+    {
+      "outputType": {
+        "type": "BUNDLE_MANIFEST"
+      },
+      "apkData": {
+        "type": "MAIN",
+        "splits": [],
+        "versionCode": -1,
+        "outputFile": "Application-debug.apk",
+        "fullName": "debug",
+        "baseName": "debug",
+        "dirName": ""
+      },
+      "path": "AndroidManifest.xml",
+      "properties": {
+        "packageId": "com.example.android.wearable.datalayer",
+        "split": "",
+        "minSdkVersion": "18"
+      }
+    }
+  ]
+}
