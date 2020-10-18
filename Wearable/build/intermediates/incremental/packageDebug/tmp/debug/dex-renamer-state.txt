@@ -1,4 +1,4 @@
-#Sat Oct 17 18:55:48 CDT 2020
+#Sat Oct 17 19:12:29 CDT 2020
 base.0=D\:\\Android\\STMI\\Wearable\\build\\intermediates\\dex\\debug\\mergeExtDexDebug\\classes.dex
 path.1=classes.dex
 renamed.1=classes2.dex

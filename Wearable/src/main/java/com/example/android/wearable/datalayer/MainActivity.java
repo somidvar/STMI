@@ -96,12 +96,23 @@ public class MainActivity extends FragmentActivity
     public void onDataChanged(DataEventBuffer dataEvents) {
         Log.e(TAG, "onDataChanged transfer initializing");
         try {
-            if(willbesend) {
-                willbesend=false;
-                String sensorRawDataStr = "/data/data/com.example.android.wearable.datalayer/files/SensorDataFile/1.txt";
-                String sensorRawDataStr4 = "/data/data/com.example.android.wearable.datalayer/files/SensorDataFile/2.txt";
+            for (int counter=0;counter<sensorReader.fileToBeSent.size();counter++) {
 
-                new SendDataAsyncTask().execute(sensorRawDataStr, "1.txt", sensorRawDataStr4, "2.txt");
+                String fileName=sensorReader.fileToBeSent.get(counter);
+                if(fileName=="")
+                    continue;
+                fileName=fileName.substring(fileName.lastIndexOf('/')+1);
+                new SendDataAsyncTask().execute(sensorReader.fileToBeSent.get(counter),fileName);
+                Log.e(TAG,"onDataChanged sending file:"+sensorReader.fileToBeSent.get(counter));
+                sensorReader.fileToBeSent.set(counter,"");
+            }
+//            if(willbesend) {
+//                willbesend=false;
+//                String sensorRawDataStr = "/data/data/com.example.android.wearable.datalayer/files/SensorDataFile/1.txt";
+//                String sensorRawDataStr4 = "/data/data/com.example.android.wearable.datalayer/files/SensorDataFile/2.txt";
+//
+//                new SendDataAsyncTask().execute(sensorRawDataStr, "1.txt", sensorRawDataStr4, "2.txt");
+//            }
 
 //                new SendDataAsyncTask().execute(sensorRawDataStr4, "test (4).txt");
 //                String sensorRawDataStr5 = "/data/data/com.example.android.wearable.datalayer/files/SensorDataFile/test (5).txt";
@@ -116,43 +127,11 @@ public class MainActivity extends FragmentActivity
 //                new SendDataAsyncTask().execute(sensorRawDataStr9, "test (9).txt");
 
 
-
-
-
-/*
-                String sensorRawDataStr1 = "/data/data/com.example.android.wearable.datalayer/files/SensorDataFile/2.txt";
-                new SendDataAsyncTask().execute(sensorRawDataStr1, "2.txt");
-
-                String sensorRawDataStr2 = "/data/data/com.example.android.wearable.datalayer/files/SensorDataFile/3.txt";
-                new SendDataAsyncTask().execute(sensorRawDataStr2, "3.txt");
-
-
-                String sensorRawDataStr3 = "/data/data/com.example.android.wearable.datalayer/files/SensorDataFile/4.txt";
-                new SendDataAsyncTask().execute(sensorRawDataStr3, "4.txt");
-
-                String sensorRawDataStr4 = "/data/data/com.example.android.wearable.datalayer/files/SensorDataFile/5.txt";
-                new SendDataAsyncTask().execute(sensorRawDataStr4, "5.txt");
-
-                String sensorRawDataStr5 = "/data/data/com.example.android.wearable.datalayer/files/SensorDataFile/6.txt";
-                new SendDataAsyncTask().execute(sensorRawDataStr5, "6.txt");
-
-
- */
-            }
         }catch (Exception e) {
             Log.e(TAG, "onDataChanged" + e.getMessage());
         }
         /*
-        for (int counter=0;counter<sensorReader.fileToBeSent.size();counter++) {
 
-            String fileName=sensorReader.fileToBeSent.get(counter);
-            if(fileName=="")
-                continue;
-            fileName=fileName.substring(fileName.lastIndexOf('/')+1);
-            new SendDataAsyncTask().execute(sensorReader.fileToBeSent.get(counter),fileName);
-            Log.e(TAG,"onDataChanged sending file:"+sensorReader.fileToBeSent.get(counter));
-            sensorReader.fileToBeSent.set(counter,"");
-        }
 
          */
     }

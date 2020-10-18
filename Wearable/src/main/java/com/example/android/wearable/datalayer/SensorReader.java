@@ -115,7 +115,7 @@ public class SensorReader extends FragmentActivity implements SensorEventListene
             Sensor gyroscopeSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
             Sensor gravitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
             Sensor heartBeatSensor = sensorManager.getDefaultSensor(Sensor.TYPE_HEART_BEAT);
-/*
+
 
             if (accelerometerSensor != null) {
                 sensorManager.registerListener(this, accelerometerSensor,
@@ -141,12 +141,10 @@ public class SensorReader extends FragmentActivity implements SensorEventListene
                         SensorManager.SENSOR_DELAY_NORMAL, SensorManager.SENSOR_DELAY_UI);
             }
 
-
- */
         }catch (Exception e) {
             Log.e(TAG, "SensorReader"+e.getMessage());
         }
-        //onlyForTest();
+        onlyForTest();
     }
 
     public void onSensorChanged(SensorEvent event) {
@@ -284,8 +282,9 @@ public class SensorReader extends FragmentActivity implements SensorEventListene
  */
             //fileName = new File(root, ParameterName+"-"+String.format("%03d",(int) dayOfYear)+"-"
               //      +String.format("%02d",(int)hour)+"-"+String.format("%02d",(int) minute)+".txt");
+            StringBuffer stringBuffer=new StringBuffer("");
             fileName = new File(root, parameterName+"-"+String.format("%03d",(int) dayOfYear)+"-"
-                    +String.format("%02d",(int)hour)+".txt");
+                    +String.format("%02d",(int)hour)+"-"+String.format("%02d",(int)minute)+".txt");
             boolean fileExistance=fileName.exists();
             FileWriter writer = new FileWriter(fileName,true);
             if(!fileExistance) {
@@ -299,21 +298,22 @@ public class SensorReader extends FragmentActivity implements SensorEventListene
             int elementSize=myList.get(0).size();
             for (int rowCounter=parameterStart;rowCounter<parameterEnd;rowCounter++) {
                 if(parameterName=="Heart"){
-                    sensorContext += (int)(float) myList.get(rowCounter).get(0) + "\t";
+                    stringBuffer.append((int)(float) myList.get(rowCounter).get(0) + "\t");
                 }
                 else{
                     for (int columnCounter = 0; columnCounter < 3; columnCounter++) {
-                        sensorContext += String.format("%01.5f",(float) myList.get(rowCounter).get(columnCounter)) + "\t";
+                        stringBuffer.append(String.format("%01.5f",(float) myList.get(rowCounter).get(columnCounter)) + "\t");
                     }
                 }
                 for (int columnCounter = elementSize-4; columnCounter < elementSize; columnCounter++) {
                     int temporaryValue=(int)(float)myList.get(rowCounter).get(columnCounter);
-                    sensorContext +=temporaryValue;
+                    stringBuffer.append(temporaryValue);
                     if(columnCounter!=elementSize-1)
-                        sensorContext+="\t";
+                        stringBuffer.append("\t");
                 }
-                sensorContext +="\n";
-                if(rowCounter%10==0){
+                stringBuffer.append("\n");
+                sensorContext=stringBuffer.toString();
+                if(rowCounter%100==0){
                     writer.write(sensorContext);
                     sensorContext="";
                 }
@@ -321,10 +321,8 @@ public class SensorReader extends FragmentActivity implements SensorEventListene
             writer.write(sensorContext);
             writer.flush();
             writer.close();
-            sensorContext="";
 
             fileToBeSent.add(fileName.getPath()+"");
-            //Log.e(TAG,"writtingSensorToFile \t bye");
         } catch (Exception e) {
             Log.e(TAG,"writtingSensorToFile \t"+e.getMessage());
         }
