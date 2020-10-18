@@ -30,7 +30,6 @@ public class STMIWatchListenerService extends WearableListenerService {
     public static final String COUNT_PATH = "/count";
 
     public static final String STMI_SENSOR_PATH = "/sensor";
-    public static final String STMI_SENSOR_KEY = "sensor";
     public static final String STMI_TRANSMISSION_PATH = "/transmission";
 
 

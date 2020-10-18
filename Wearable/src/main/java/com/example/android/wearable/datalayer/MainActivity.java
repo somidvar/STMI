@@ -11,16 +11,24 @@ package com.example.android.wearable.datalayer;
 import android.content.Context;
 import android.hardware.SensorManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.FragmentActivity;
 import androidx.wear.ambient.AmbientModeSupport;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.gms.wearable.Asset;
 import com.google.android.gms.wearable.DataClient;
 import com.google.android.gms.wearable.DataEvent;
 import com.google.android.gms.wearable.DataEventBuffer;
+import com.google.android.gms.wearable.DataItem;
+import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.MessageClient;
 import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.PutDataMapRequest;
@@ -30,10 +38,17 @@ import com.google.android.gms.wearable.Wearable;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Date;
+import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 
@@ -44,6 +59,7 @@ public class MainActivity extends FragmentActivity
 
     private static final String TAG = "MainActivity";
     SensorReader sensorReader;
+    private boolean willbesend=true;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -75,69 +91,54 @@ public class MainActivity extends FragmentActivity
         }
     }
 
-    private class SendDataAsyncTask extends AsyncTask<String, Void,Void> {
-
-        @Override
-        protected Void doInBackground(String... params) {
-            ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-            try {
-                BufferedReader bufferedReader = new BufferedReader(new FileReader(params[0]));
-                String EOFGaurd = bufferedReader.readLine();
-                String rawDataContext = "";
-                while (EOFGaurd != null) {
-                    rawDataContext += EOFGaurd + "\n";
-                    EOFGaurd = bufferedReader.readLine();
-                }
-                String fileName=params[1]+"\n";
-                byteStream.write(fileName.getBytes());
-                //String fileCapacity=String.valueOf(sensorReader.recordCapacity)+"\n";
-                //byteStream.write(fileCapacity.getBytes());
-
-                byteStream.write(rawDataContext.getBytes());
-
-                Asset wearableDataAsset = Asset.createFromBytes(byteStream.toByteArray());
-                PutDataMapRequest dataMap = PutDataMapRequest.create(STMIWatchListenerService.STMI_SENSOR_PATH);
-                dataMap.getDataMap().putAsset(STMIWatchListenerService.STMI_SENSOR_KEY, wearableDataAsset);
-                dataMap.getDataMap().putLong("time", new Date().getTime());
-                PutDataRequest request = dataMap.asPutDataRequest();
-                //request.setUrgent();
-                Wearable.getDataClient(getApplicationContext()).putDataItem(request);
-                Log.i(TAG, "SendDataAsyncTask is sent!");
-                byteStream.close();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            } catch (Exception e) {
-                Log.e(TAG, "SendDataAsyncTask" + e.getMessage());
-            }
-            return null;
-        }
-    }
 
     @Override
     public void onDataChanged(DataEventBuffer dataEvents) {
         Log.e(TAG, "onDataChanged transfer initializing");
         try {
-            String sensorRawDataStr = "/data/data/com.example.android.wearable.datalayer/files/SensorDataFile/7.txt";
-            new SendDataAsyncTask().execute(sensorRawDataStr, "7.txt");
+            if(willbesend) {
+                willbesend=false;
+                String sensorRawDataStr = "/data/data/com.example.android.wearable.datalayer/files/SensorDataFile/1.txt";
+                String sensorRawDataStr4 = "/data/data/com.example.android.wearable.datalayer/files/SensorDataFile/2.txt";
 
-            /*
-            String sensorRawDataStr1 = "/data/data/com.example.android.wearable.datalayer/files/SensorDataFile/2.txt";
-            new SendDataAsyncTask().execute(sensorRawDataStr1, "2.txt");
+                new SendDataAsyncTask().execute(sensorRawDataStr, "1.txt", sensorRawDataStr4, "2.txt");
 
-            String sensorRawDataStr2 = "/data/data/com.example.android.wearable.datalayer/files/SensorDataFile/3.txt";
-            new SendDataAsyncTask().execute(sensorRawDataStr2, "3.txt");
+//                new SendDataAsyncTask().execute(sensorRawDataStr4, "test (4).txt");
+//                String sensorRawDataStr5 = "/data/data/com.example.android.wearable.datalayer/files/SensorDataFile/test (5).txt";
+//                new SendDataAsyncTask().execute(sensorRawDataStr5, "test (5).txt");
+//                String sensorRawDataStr6 = "/data/data/com.example.android.wearable.datalayer/files/SensorDataFile/test (6).txt";
+//                new SendDataAsyncTask().execute(sensorRawDataStr6, "test (6).txt");
+//                String sensorRawDataStr7 = "/data/data/com.example.android.wearable.datalayer/files/SensorDataFile/test (7).txt";
+//                new SendDataAsyncTask().execute(sensorRawDataStr7, "test (7).txt");
+//                String sensorRawDataStr8 = "/data/data/com.example.android.wearable.datalayer/files/SensorDataFile/test (8).txt";
+//                new SendDataAsyncTask().execute(sensorRawDataStr8, "test (8).txt");
+//                String sensorRawDataStr9 = "/data/data/com.example.android.wearable.datalayer/files/SensorDataFile/test (9).txt";
+//                new SendDataAsyncTask().execute(sensorRawDataStr9, "test (9).txt");
 
 
-            String sensorRawDataStr3 = "/data/data/com.example.android.wearable.datalayer/files/SensorDataFile/4.txt";
-            new SendDataAsyncTask().execute(sensorRawDataStr3, "4.txt");
 
-            String sensorRawDataStr4 = "/data/data/com.example.android.wearable.datalayer/files/SensorDataFile/5.txt";
-            new SendDataAsyncTask().execute(sensorRawDataStr4, "5.txt");
 
-            String sensorRawDataStr5 = "/data/data/com.example.android.wearable.datalayer/files/SensorDataFile/6.txt";
-            new SendDataAsyncTask().execute(sensorRawDataStr5, "6.txt");
 
-             */
+/*
+                String sensorRawDataStr1 = "/data/data/com.example.android.wearable.datalayer/files/SensorDataFile/2.txt";
+                new SendDataAsyncTask().execute(sensorRawDataStr1, "2.txt");
+
+                String sensorRawDataStr2 = "/data/data/com.example.android.wearable.datalayer/files/SensorDataFile/3.txt";
+                new SendDataAsyncTask().execute(sensorRawDataStr2, "3.txt");
+
+
+                String sensorRawDataStr3 = "/data/data/com.example.android.wearable.datalayer/files/SensorDataFile/4.txt";
+                new SendDataAsyncTask().execute(sensorRawDataStr3, "4.txt");
+
+                String sensorRawDataStr4 = "/data/data/com.example.android.wearable.datalayer/files/SensorDataFile/5.txt";
+                new SendDataAsyncTask().execute(sensorRawDataStr4, "5.txt");
+
+                String sensorRawDataStr5 = "/data/data/com.example.android.wearable.datalayer/files/SensorDataFile/6.txt";
+                new SendDataAsyncTask().execute(sensorRawDataStr5, "6.txt");
+
+
+ */
+            }
         }catch (Exception e) {
             Log.e(TAG, "onDataChanged" + e.getMessage());
         }
@@ -154,6 +155,73 @@ public class MainActivity extends FragmentActivity
         }
 
          */
+    }
+    private class SendDataAsyncTask extends AsyncTask<String, Void,Void> implements OnSuccessListener<DataItem>, OnFailureListener {
+
+        private ByteArrayOutputStream read_file(String path, String filename){
+            ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+            try{
+                Log.e(TAG, "Reading file.!");
+
+                BufferedReader bufferedReader = new BufferedReader(new FileReader(path),1024);
+                byteStream.write((filename + "\n").getBytes());
+
+                String line="";
+                int count=0;
+                while((line = bufferedReader.readLine()) != null){
+                    byteStream.write((line+"\n").getBytes());
+                }
+                bufferedReader.close();
+                byteStream.flush();
+            } catch (Exception e) {
+                Log.e(TAG, "SendDataAsyncTask" + e.getMessage());
+            }
+            return byteStream;
+        }
+
+        @RequiresApi(api = Build.VERSION_CODES.O)
+        @Override
+        protected Void doInBackground(String... params) {
+
+            try {
+                Asset wearableDataAsset = Asset.createFromBytes(read_file(params[0], params[1]).toByteArray());
+                Asset wearableDataAsset2 = Asset.createFromBytes(read_file(params[2], params[3]).toByteArray());
+
+                PutDataMapRequest dataMap = PutDataMapRequest.create(STMIWatchListenerService.STMI_SENSOR_PATH);
+                dataMap.getDataMap().putAsset(params[1], wearableDataAsset);
+                dataMap.getDataMap().putAsset(params[3], wearableDataAsset2);
+                dataMap.getDataMap().putLong("time", new Date().getTime());
+                PutDataRequest request = dataMap.asPutDataRequest();
+                request.setUrgent();
+                Task<DataItem> putTask = Wearable.getDataClient(getApplicationContext()).putDataItem(request);
+
+                putTask.addOnSuccessListener(this);
+                putTask.addOnFailureListener(this);
+                /*
+                PutDataMapRequest dataMap = PutDataMapRequest.create(STMIWatchListenerService.STMI_SENSOR_PATH);
+                dataMap.getDataMap().putAsset(STMIWatchListenerService.STMI_SENSOR_KEY, wearableDataAsset);
+                dataMap.getDataMap().putLong("time", new Date().getTime());
+                PutDataRequest request = dataMap.asPutDataRequest();
+                request.setUrgent();
+                Log.e(TAG, "5SendDataAsyncTask will be sent!");
+                Wearable.getDataClient(getApplicationContext()).putDataItem(request);
+                Log.e(TAG, "6SendDataAsyncTask will be sent!");
+
+                 */
+            } catch (Exception e) {
+                Log.e(TAG, "SendDataAsyncTask" + e.getMessage());
+            }
+            return null;
+        }
+        @Override
+        public void onSuccess(DataItem dataItem) {
+            Log.e(TAG,"Success in onSuccess: " + dataItem.getUri().toString());
+        }
+
+        @Override
+        public void onFailure(@NonNull Exception e) {
+            Log.e(TAG,"Failure in onFailure:"+e.getMessage());
+        }
     }
 
     @Override
