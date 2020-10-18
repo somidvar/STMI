@@ -1,9 +1,9 @@
 /*
  * Copyright (C) 2020 Sorush Omidvar. All rights reserved.
  *
- * This appliction is created under Dr. Mortazavi at Texas A&M University for continuous glucose
- * monitoring project funded by NSF. This project is developed based on the DataLayer Android sample
- * project.
+ * This appliction is created under Dr. Mortazavi supervision at Texas A&M University for continuous
+ * glucose monitoring project funded by NSF. This project is developed based on the DataLayer
+ * Android sample project.
  */
 
 package com.example.android.wearable.datalayer;
@@ -85,7 +85,7 @@ public class MainActivity extends Activity
         Wearable.getCapabilityClient(this)
                 .addListener(this, Uri.parse("wear://"), CapabilityClient.FILTER_REACHABLE);
 
-        onlyForTest();
+        //onlyForTest();
     }
     @Override
     public void onDestroy() {

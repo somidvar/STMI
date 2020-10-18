@@ -1,3 +1,11 @@
+/*
+ * Copyright (C) 2020 Sorush Omidvar. All rights reserved.
+ *
+ * This appliction is created under Dr. Mortazavi supervision at Texas A&M University for continuous
+ * glucose monitoring project funded by NSF. This project is developed based on the DataLayer
+ * Android sample project.
+ */
+
 package com.example.android.wearable.datalayer;
 
 import android.hardware.Sensor;
@@ -16,7 +24,6 @@ import java.util.ArrayList;
 
 public class SensorReader extends FragmentActivity implements SensorEventListener, DataClient.OnDataChangedListener {
     private static final String TAG = "sensorReader";
-    String sensorContext="";
     private long timeOffset;
     private boolean timeOffsetGaurd;
     private SensorManager sensorManager;
@@ -132,7 +139,7 @@ public class SensorReader extends FragmentActivity implements SensorEventListene
         }catch (Exception e) {
             Log.e(TAG, "SensorReader"+e.getMessage());
         }
-        onlyForTest();
+        //onlyForTest();
     }
 
     public void onSensorChanged(SensorEvent event) {

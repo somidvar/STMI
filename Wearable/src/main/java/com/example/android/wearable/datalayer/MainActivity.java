@@ -1,11 +1,10 @@
 /*
  * Copyright (C) 2020 Sorush Omidvar. All rights reserved.
  *
- * This appliction is created under Dr. Mortazavi at Texas A&M University for continuous glucose
- * monitoring project funded by NSF. This project is developed based on the DataLayer Android sample
- * project.
+ * This appliction is created under Dr. Mortazavi supervision at Texas A&M University for continuous
+ * glucose monitoring project funded by NSF. This project is developed based on the DataLayer
+ * Android sample project.
  */
-
 package com.example.android.wearable.datalayer;
 
 import android.content.Context;
@@ -74,11 +73,11 @@ public class MainActivity extends FragmentActivity
             int assetSizeInt=0;
             for (int counter = 0; counter < sensorReader.fileToBeSent.size(); counter++) {
                 String stringTemp=sensorReader.fileToBeSent.get(counter);
-                if(stringTemp=="")
+                if(stringTemp==null)
                     continue;
                 fileAddress +=stringTemp+"\n";
                 fileName += stringTemp.substring(stringTemp.lastIndexOf('/') + 1)+"\n";
-                sensorReader.fileToBeSent.remove(counter);
+                sensorReader.fileToBeSent.set(counter,null);
                 assetSizeInt++;
             }
             if(assetSizeInt>0) {

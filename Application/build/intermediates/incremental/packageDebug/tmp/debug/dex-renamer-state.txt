@@ -1,4 +1,4 @@
-#Sun Oct 18 03:42:11 CDT 2020
+#Sun Oct 18 12:23:36 CDT 2020
 base.0=D\:\\Android\\STMI\\Application\\build\\intermediates\\dex\\debug\\mergeDexDebug\\classes.dex
 path.0=classes.dex
 renamed.0=classes.dex
