@@ -192,20 +192,19 @@ public class SensorReader extends FragmentActivity implements SensorEventListene
                 float current=dataList.get(parameterCounter).get(eventParameters.length + 2);
                 float prev=dataList.get(parameterCounter-1).get(eventParameters.length + 2);
                 if (current !=prev) {
-                    Log.e(TAG,"eventRecorder, I'll go to writting");
                     parameterStart=0;
                     parameterEnd=parameterCounter;
                     writtingSensorToFile(dataList, parameterName, parameterStart,parameterEnd,
                             dataList.get(parameterCounter-1).get(eventParameters.length + 0),
                             dataList.get(parameterCounter-1).get(eventParameters.length + 1),
-                            dataList.get(parameterCounter-1).get(eventParameters.length + 2));
+                            dataList.get(parameterCounter-1).get(eventParameters.length + 2),true);
 
                     parameterStart=parameterCounter;
                     parameterEnd=parameterCounter+1;
                     writtingSensorToFile(dataList, parameterName, parameterStart,parameterEnd,
                             dataList.get(parameterCounter).get(eventParameters.length + 0),
                             dataList.get(parameterCounter).get(eventParameters.length + 1),
-                            dataList.get(parameterCounter).get(eventParameters.length + 2));
+                            dataList.get(parameterCounter).get(eventParameters.length + 2),false);
 
                     parameterCounter = 0;
                     return parameterCounter;
@@ -218,7 +217,7 @@ public class SensorReader extends FragmentActivity implements SensorEventListene
         return parameterCounter;
     }
     protected void writtingSensorToFile(ArrayList<ArrayList<Float>> myList, String parameterName,
-                                        int parameterStart,int parameterEnd,float dayOfYear,float hour,float minute){
+                                        int parameterStart,int parameterEnd,float dayOfYear,float hour,float minute,boolean fileFinal){
         Log.i(TAG,"writtingSensorToFile writing "+parameterName);
 
         File root = new File(this.fileAddressDest, "SensorDataFile");
@@ -267,7 +266,8 @@ public class SensorReader extends FragmentActivity implements SensorEventListene
             writer.flush();
             writer.close();
 
-            fileToBeSent.add(fileName.getPath()+"");
+            if(fileFinal)
+                fileToBeSent.add(fileName.getPath()+"");
         } catch (Exception e) {
             Log.e(TAG,"writtingSensorToFile \t"+e.getMessage());
         }
